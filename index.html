@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Wars of the Roses Map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.51.0/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" type="text/css" href="style/style.css" title="style" />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+
+<div id='map'></div>
+
+<div class='map-overlay top'>
+    <div class='map-overlay-inner'>
+        <h2>Significant Events in the Wars of the Roses</h2>
+        <label id='year'></label>
+        <input id='y_slider' type='range' min='1420' max='1485' step='5' value='0' />
+    </div>
+</div>
+
+<script src='//d3js.org/d3.v3.min.js' charset='utf-8'></script>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiY2d3ZWJiMTgiLCJhIjoiY2psd3FhMTMwMDFjNjN2b3Zmd3JyMWV2ZSJ9.r8XM2Wrgj6kueUh3Jdo3iw';
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/light-v9',
+    center: [31.4606, 20.7927],
+    zoom: 0.5
+});
+
+var years = [
+    '1420-1425',
+    '1425-1430',
+    '1430-1435',
+    '1435-1440',
+    '1440-1445',
+    '1445-1450',
+    '1450-1455',
+    '1455-1460',
+    '1460-1465',
+    '1465-1470',
+    '1470-1475',
+    '1475-1480',
+    '1480-1485'
+];
+
+function filterBy(year) {
+
+    var filters = ['==', 'year', year];
+    map.setFilter('earthquake-circles', filters);
+    map.setFilter('earthquake-labels', filters);
+
+    // Set the label to the year
+    document.getElementById('year').textContent = years[year];
+}
+
+map.on('load', function() {
+    
+    map.addSource('events', {
+            'type': 'geojson',
+            'data': '/events.geojson'
+    });
+    
+    map.addLayer({
+        "id": "events",
+        "type": "symbol",
+        "source": "events",
+        'layout': {
+                'text-field': ['concat', ['to-string', ['get', 'Description']]],
+                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                'text-size': 12
+            },
+        'paint': {
+            'text-color': 'rgba(0,0,0,0.5)'
+        }
+    });
+
+    document.getElementById('y_slider').addEventListener('input', function(e) {
+        var year = parseInt(e.target.value, 10);
+        console.log(year);
+    });
+});
+
+</script>
+
+</body>
+</html>
